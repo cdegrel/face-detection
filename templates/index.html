@@ -12,127 +12,293 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a1a;
+            overflow: hidden;
         }
 
         .container {
-            display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 20px;
-            width: 100%;
-            max-width: 1200px;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            width: 100vw;
+            height: 100vh;
         }
 
         .video-section {
+            flex: 1;
             background: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 600px;
+            overflow: hidden;
         }
 
         #video-stream {
-            max-width: 100%;
-            max-height: 100%;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
 
         .sidebar {
-            background: #f8f9fa;
+            width: 380px;
+            background: #252525;
+            border-left: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            color: #fff;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #333;
+            background: #1a1a1a;
+        }
+
+        .sidebar-header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .sidebar-content {
+            flex: 1;
             padding: 20px;
             display: flex;
             flex-direction: column;
             gap: 20px;
-            border-left: 1px solid #e0e0e0;
         }
 
-        .sidebar h2 {
-            font-size: 18px;
-            color: #333;
-            margin-bottom: 10px;
+        .section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #999;
+        }
+
+        .section-content {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        select {
+            padding: 10px 12px;
+            background: #333;
+            border: 1px solid #444;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        select:hover {
+            border-color: #555;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .stat-box {
+            background: #333;
+            border-radius: 6px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .btn-add {
+            padding: 12px 16px;
+            background: #667eea;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-add:hover {
+            background: #5568d3;
         }
 
         .references-list {
             display: flex;
             flex-direction: column;
             gap: 8px;
-            max-height: 500px;
+            max-height: 300px;
             overflow-y: auto;
         }
 
         .reference-item {
-            background: white;
-            padding: 10px;
-            border-radius: 6px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 1px solid #e0e0e0;
+            padding: 10px 12px;
+            background: #333;
+            border-radius: 6px;
             font-size: 14px;
         }
 
         .reference-item span {
-            font-weight: 500;
-            color: #333;
+            color: #fff;
         }
 
         .btn-delete {
-            background: #ff6b6b;
-            color: white;
+            background: #dc3545;
             border: none;
-            border-radius: 4px;
+            color: white;
             padding: 4px 8px;
+            border-radius: 4px;
             cursor: pointer;
             font-size: 12px;
-            transition: background 0.3s;
+            transition: background 0.2s;
         }
 
         .btn-delete:hover {
-            background: #ff5252;
+            background: #c82333;
         }
 
-        .status {
-            background: white;
-            padding: 15px;
-            border-radius: 6px;
-            border: 1px solid #e0e0e0;
-            font-size: 13px;
+        .empty-state {
+            text-align: center;
+            padding: 20px 10px;
             color: #666;
+            font-size: 13px;
         }
 
-        .status-title {
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #252525;
+            padding: 30px;
+            border-radius: 8px;
+            min-width: 350px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content h3 {
+            color: #fff;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 10px 12px;
+            margin-bottom: 16px;
+            background: #333;
+            border: 1px solid #444;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .modal-content input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
             font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
         }
 
-        @media (max-width: 768px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
-
-            .sidebar {
-                border-left: none;
-                border-top: 1px solid #e0e0e0;
-            }
-
-            .video-section {
-                min-height: 400px;
-            }
+        .btn-save {
+            background: #667eea;
+            color: white;
         }
 
-        .loading {
-            color: #999;
-            font-style: italic;
+        .btn-save:hover {
+            background: #5568d3;
+        }
+
+        .btn-cancel {
+            background: #444;
+            color: #fff;
+        }
+
+        .btn-cancel:hover {
+            background: #555;
+        }
+
+        .alert {
+            padding: 10px 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+
+        .alert-success {
+            background: #1e5631;
+            color: #4ade80;
+            border-left: 3px solid #4ade80;
+        }
+
+        .alert-error {
+            background: #5f1818;
+            color: #ff6b6b;
+            border-left: 3px solid #ff6b6b;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #2a2a2a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
         }
     </style>
 </head>
@@ -143,24 +309,93 @@
         </div>
 
         <div class="sidebar">
-            <div>
-                <h2>🎯 Détections</h2>
-                <div class="status">
-                    <div class="status-title">Visages détectés</div>
-                    <div id="detection-count" class="loading">En attente...</div>
-                </div>
+            <div class="sidebar-header">
+                <h1>Face Detection</h1>
             </div>
 
-            <div>
-                <h2>👤 Visages sauvegardés</h2>
-                <div id="references-list" class="references-list">
-                    <div class="loading">Chargement...</div>
+            <div class="sidebar-content">
+                <!-- Source vidéo -->
+                <div class="section">
+                    <div class="section-title">Source vidéo</div>
+                    <div class="section-content">
+                        <select id="camera-select" onchange="changeCamera()">
+                            <option value="">Chargement...</option>
+                        </select>
+                    </div>
+                </div>
+
+
+                <!-- Visages sauvegardés -->
+                <div class="section">
+                    <div class="section-title">Visages sauvegardés</div>
+                    <div class="references-list" id="references-list">
+                        <div class="empty-state">Chargement...</div>
+                    </div>
+                    <button class="btn-add" onclick="openAddFaceModal()" style="margin-top: 12px;">Ajouter une personne</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Modal -->
+    <div id="add-face-modal" class="modal">
+        <div class="modal-content">
+            <h3>Ajouter une personne</h3>
+            <div id="modal-alert"></div>
+            <input type="text" id="face-name-input" placeholder="Nom" autofocus />
+            <div class="modal-buttons">
+                <button class="modal-btn btn-save" onclick="saveFace()">Sauvegarder</button>
+                <button class="modal-btn btn-cancel" onclick="closeAddFaceModal()">Annuler</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        function loadCameras() {
+            fetch('/get_cameras')
+                .then(response => response.json())
+                .then(data => {
+                    const select = document.getElementById('camera-select');
+                    select.innerHTML = '';
+
+                    if (data.cameras.length === 0) {
+                        select.innerHTML = '<option disabled>Aucune caméra</option>';
+                        return;
+                    }
+
+                    data.cameras.forEach(index => {
+                        const option = document.createElement('option');
+                        option.value = index;
+                        option.textContent = `Caméra ${index}`;
+                        if (index === data.current) {
+                            option.selected = true;
+                        }
+                        select.appendChild(option);
+                    });
+                });
+        }
+
+        function changeCamera() {
+            const select = document.getElementById('camera-select');
+            const cameraIndex = parseInt(select.value);
+
+            fetch('/set_camera', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ index: cameraIndex })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const img = document.getElementById('video-stream');
+                    img.src = '{{ url_for("video_feed") }}?' + new Date().getTime();
+                }
+            });
+        }
+
+
         function loadReferences() {
             fetch('/get_references')
                 .then(response => response.json())
@@ -169,7 +404,7 @@
                     list.innerHTML = '';
 
                     if (data.length === 0) {
-                        list.innerHTML = '<div class="loading">Aucun visage sauvegardé</div>';
+                        list.innerHTML = '<div class="empty-state">Aucun visage sauvegardé</div>';
                         return;
                     }
 
@@ -177,7 +412,7 @@
                         const item = document.createElement('div');
                         item.className = 'reference-item';
                         item.innerHTML = `
-                            <span>👤 ${name}</span>
+                            <span>${name}</span>
                             <button class="btn-delete" onclick="deleteReference('${name}')">Suppr.</button>
                         `;
                         list.appendChild(item);
@@ -203,11 +438,62 @@
             }
         }
 
-        // Charger les références au démarrage
-        loadReferences();
+        function openAddFaceModal() {
+            document.getElementById('add-face-modal').classList.add('active');
+            document.getElementById('face-name-input').focus();
+        }
 
-        // Recharger les références toutes les 5 secondes
-        setInterval(loadReferences, 5000);
+        function closeAddFaceModal() {
+            document.getElementById('add-face-modal').classList.remove('active');
+            document.getElementById('face-name-input').value = '';
+            document.getElementById('modal-alert').innerHTML = '';
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.getElementById('modal-alert');
+            alertDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+        }
+
+        function saveFace() {
+            const name = document.getElementById('face-name-input').value.trim();
+
+            if (!name) {
+                showAlert('Entrez un nom valide', 'error');
+                return;
+            }
+
+            fetch('/save_reference', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: name })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showAlert(data.message, 'success');
+                    setTimeout(() => {
+                        closeAddFaceModal();
+                        loadReferences();
+                    }, 1000);
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                showAlert('Erreur: ' + error, 'error');
+            });
+        }
+
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && document.getElementById('add-face-modal').classList.contains('active')) {
+                saveFace();
+            }
+        });
+
+        loadCameras();
+        loadReferences();
     </script>
 </body>
 </html>

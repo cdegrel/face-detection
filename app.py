@@ -12,8 +12,32 @@ app = Flask(__name__)
 REFERENCES_FILE = "face_references.pkl"
 camera = cv2.VideoCapture(0)
 lock = threading.Lock()
+current_camera_index = 0
+last_detected_count = 0
+last_face_encoding = None
 
 mp_face_detection = mp.solutions.face_detection
+
+def get_available_cameras(max_index=5):
+    available = []
+    for i in range(max_index):
+        cap = cv2.VideoCapture(i)
+        if cap.isOpened():
+            available.append(i)
+            cap.release()
+    return available
+
+def switch_camera(camera_index):
+    global camera, current_camera_index
+    with lock:
+        camera.release()
+        current_camera_index = camera_index
+        camera = cv2.VideoCapture(camera_index)
+        if not camera.isOpened():
+            camera = cv2.VideoCapture(0)
+            current_camera_index = 0
+            return False
+    return True
 
 def load_references():
     if os.path.exists(REFERENCES_FILE):
@@ -33,6 +57,7 @@ def save_references(references):
         pickle.dump(references, f)
 
 def generate_frames():
+    global last_detected_count, last_face_encoding
     with mp_face_detection.FaceDetection(min_detection_confidence=0.5) as face_detection:
         references = load_references()
 
@@ -50,6 +75,7 @@ def generate_frames():
             face_encodings_in_frame = face_recognition.face_encodings(small_rgb_frame)
 
             encoding_idx = 0
+            detected_count = 0
 
             if results.detections:
                 for detection in results.detections:
@@ -73,6 +99,7 @@ def generate_frames():
 
                     if encoding_idx < len(face_encodings_in_frame):
                         current_encoding = face_encodings_in_frame[encoding_idx]
+                        last_face_encoding = current_encoding
 
                         for name, ref_data in references.items():
                             if ref_data.get('type') == 'human':
@@ -93,6 +120,9 @@ def generate_frames():
                     cv2.putText(frame, text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, color, 2)
 
                     encoding_idx += 1
+                    detected_count += 1
+
+            last_detected_count = detected_count
 
             ret, buffer = cv2.imencode('.jpg', frame)
             frame_bytes = buffer.tobytes()
@@ -115,11 +145,27 @@ def get_references():
 
 @app.route('/save_reference', methods=['POST'])
 def save_reference():
+    global last_face_encoding
     data = request.json
     name = data.get('name')
-    # This would need to capture from the current frame
-    # For now, just return success
-    return jsonify({'status': 'success'})
+
+    if not name or not name.strip():
+        return jsonify({'status': 'error', 'message': 'Le nom est requis'})
+
+    if last_face_encoding is None:
+        return jsonify({'status': 'error', 'message': 'Aucun visage détecté. Positionnez-vous devant la caméra.'})
+
+    references = load_references()
+    if name in references:
+        return jsonify({'status': 'error', 'message': f'Le visage "{name}" existe déjà'})
+
+    references[name] = {
+        'type': 'human',
+        'encoding': last_face_encoding.tolist()
+    }
+    save_references(references)
+
+    return jsonify({'status': 'success', 'message': f'Visage "{name}" ajouté avec succès !'})
 
 @app.route('/delete_reference', methods=['POST'])
 def delete_reference():
@@ -131,6 +177,24 @@ def delete_reference():
         save_references(references)
         return jsonify({'status': 'success'})
     return jsonify({'status': 'error', 'message': 'Face not found'})
+
+@app.route('/get_cameras')
+def get_cameras():
+    available = get_available_cameras()
+    return jsonify({'cameras': available, 'current': current_camera_index})
+
+@app.route('/set_camera', methods=['POST'])
+def set_camera():
+    data = request.json
+    camera_index = data.get('index')
+    if camera_index is not None and isinstance(camera_index, int):
+        if switch_camera(camera_index):
+            return jsonify({'status': 'success', 'camera': camera_index})
+    return jsonify({'status': 'error', 'message': 'Invalid camera index'})
+
+@app.route('/get_detection_count')
+def get_detection_count():
+    return jsonify({'count': last_detected_count})
 
 if __name__ == '__main__':
     app.run(debug=True, port=5005, host='0.0.0.0')
