@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Detection & Recognition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .video-section {
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 600px;
+        }
+
+        #video-stream {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .sidebar {
+            background: #f8f9fa;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            border-left: 1px solid #e0e0e0;
+        }
+
+        .sidebar h2 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .references-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .reference-item {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+
+        .reference-item span {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .btn-delete {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s;
+        }
+
+        .btn-delete:hover {
+            background: #ff5252;
+        }
+
+        .status {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .status-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                border-left: none;
+                border-top: 1px solid #e0e0e0;
+            }
+
+            .video-section {
+                min-height: 400px;
+            }
+        }
+
+        .loading {
+            color: #999;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="video-section">
+            <img id="video-stream" src="{{ url_for('video_feed') }}" alt="Video Stream">
+        </div>
+
+        <div class="sidebar">
+            <div>
+                <h2>🎯 Détections</h2>
+                <div class="status">
+                    <div class="status-title">Visages détectés</div>
+                    <div id="detection-count" class="loading">En attente...</div>
+                </div>
+            </div>
+
+            <div>
+                <h2>👤 Visages sauvegardés</h2>
+                <div id="references-list" class="references-list">
+                    <div class="loading">Chargement...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loadReferences() {
+            fetch('/get_references')
+                .then(response => response.json())
+                .then(data => {
+                    const list = document.getElementById('references-list');
+                    list.innerHTML = '';
+
+                    if (data.length === 0) {
+                        list.innerHTML = '<div class="loading">Aucun visage sauvegardé</div>';
+                        return;
+                    }
+
+                    data.forEach(name => {
+                        const item = document.createElement('div');
+                        item.className = 'reference-item';
+                        item.innerHTML = `
+                            <span>👤 ${name}</span>
+                            <button class="btn-delete" onclick="deleteReference('${name}')">Suppr.</button>
+                        `;
+                        list.appendChild(item);
+                    });
+                });
+        }
+
+        function deleteReference(name) {
+            if (confirm(`Supprimer le visage "${name}" ?`)) {
+                fetch('/delete_reference', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name: name })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        loadReferences();
+                    }
+                });
+            }
+        }
+
+        // Charger les références au démarrage
+        loadReferences();
+
+        // Recharger les références toutes les 5 secondes
+        setInterval(loadReferences, 5000);
+    </script>
+</body>
+</html>
