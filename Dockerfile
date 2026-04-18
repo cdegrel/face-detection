@@ -20,4 +20,4 @@ COPY . .
 EXPOSE 5005
 
 # Lancer l'application
-CMD ["python3", "app_flask.py"]
+CMD ["python3", "app.py"]

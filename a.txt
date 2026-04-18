@@ -1,0 +1,2 @@
+echo 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 | docker login ghcr.io -u cdegrel --password-stdin
+docker pull ghcr.io/cdegrel/face-detection:latest
