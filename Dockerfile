@@ -20,4 +20,4 @@ COPY . .
 EXPOSE 5005
 
 # Lancer l'application
-CMD ["python3", "main.py"]
+CMD ["python3", "-m", "src"]
