@@ -131,14 +131,56 @@ docker-compose up
 
 ## Configuration
 
-Edit `src/config.py` to customize:
+Configuration is managed via environment variables through `.env` file.
 
-```python
-MIN_DETECTION_CONFIDENCE = 0.5    # Face detection threshold
-RECOGNITION_THRESHOLD = 0.6       # Face recognition similarity threshold
-PORT = 5005                       # Server port
-HOST = '0.0.0.0'                 # Server host
+### Local Setup
+
+1. **Copy the example file**
+```bash
+cp .env.example .env
 ```
+
+2. **Edit `.env` with your values**
+```env
+# Server Configuration
+DEBUG=False
+PORT=5005
+HOST=0.0.0.0
+
+# Face Detection (0.0 - 1.0, higher = stricter)
+MIN_DETECTION_CONFIDENCE=0.5
+
+# Face Recognition (0.0 - 1.0, lower = stricter matching)
+RECOGNITION_THRESHOLD=0.6
+
+# File Storage
+REFERENCES_FILE=face_references.pkl
+```
+
+### Docker Compose
+
+Edit `docker-compose.yml` to change environment variables:
+
+```yaml
+services:
+  app:
+    environment:
+      - DEBUG=False
+      - PORT=5005
+      - MIN_DETECTION_CONFIDENCE=0.5
+      - RECOGNITION_THRESHOLD=0.6
+```
+
+### Parameter Guide
+
+| Parameter | Default | Range | Description |
+|-----------|---------|-------|-------------|
+| `DEBUG` | False | True/False | Enable debug mode |
+| `PORT` | 5005 | 1-65535 | Server port |
+| `HOST` | 0.0.0.0 | IP/0.0.0.0 | Server host |
+| `MIN_DETECTION_CONFIDENCE` | 0.5 | 0.0-1.0 | Face detection threshold (higher = stricter) |
+| `RECOGNITION_THRESHOLD` | 0.6 | 0.0-1.0 | Face similarity threshold (lower = stricter) |
+| `REFERENCES_FILE` | face_references.pkl | path | Where to store face data |
 
 ## GitHub Actions
 
