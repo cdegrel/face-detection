@@ -17,6 +17,3 @@ COPY . .
 EXPOSE 5005
 
 ENV PYTHONPATH=/app
-
-# Lancer l'application
-CMD ["python3", "-m", "src"]
