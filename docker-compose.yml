@@ -7,8 +7,6 @@ services:
       - "5005:5005"
     volumes:
       - ./face_references.pkl:/app/face_references.pkl # Persistance des données
-    devices:
-      - /dev/video0:/dev/video0
     environment:
       - FLASK_ENV=development
     deploy:
