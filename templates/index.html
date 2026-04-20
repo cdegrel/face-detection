@@ -432,28 +432,26 @@
                 if (currentSource !== 'local' || !videoStream) return;
 
                 ctx.drawImage(video, 0, 0);
-                canvas.toBlob(blob => {
-                    const formData = new FormData();
-                    formData.append('frame', blob);
+                const frameData = canvas.toDataURL('image/jpeg', 0.8);
 
-                    fetch('/process_frame', {
-                        method: 'POST',
-                        body: formData
-                    })
-                    .then(response => response.blob())
-                    .then(blob => {
-                        const url = URL.createObjectURL(blob);
-                        document.getElementById('video-stream').src = url;
-                        document.getElementById('video-stream').style.display = 'block';
-                        document.getElementById('video').style.display = 'none';
+                fetch('/process_frame', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ frame: frameData })
+                })
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = URL.createObjectURL(blob);
+                    document.getElementById('video-stream').src = url;
+                    document.getElementById('video-stream').style.display = 'block';
+                    document.getElementById('video').style.display = 'none';
 
-                        setTimeout(processFrame, 100);
-                    })
-                    .catch(error => {
-                        console.error('Frame processing error:', error);
-                        setTimeout(processFrame, 100);
-                    });
-                }, 'image/jpeg', 0.8);
+                    setTimeout(processFrame, 100);
+                })
+                .catch(error => {
+                    console.error('Frame processing error:', error);
+                    setTimeout(processFrame, 100);
+                });
             }
 
             processFrame();

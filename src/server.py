@@ -98,8 +98,14 @@ def index():
 @app.route('/process_frame', methods=['POST'])
 def process_frame():
     try:
-        file = request.files['frame']
-        img = Image.open(file.stream)
+        data = request.get_json()
+        frame_data = data.get('frame')
+
+        if not frame_data:
+            return jsonify({'status': 'error', 'message': 'No frame data'}), 400
+
+        img_data = base64.b64decode(frame_data.split(',')[1] if ',' in frame_data else frame_data)
+        img = Image.open(BytesIO(img_data))
         frame = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
 
         results, rgb_frame = detect_faces(frame)
@@ -111,6 +117,8 @@ def process_frame():
         return Response(frame_bytes, mimetype='image/jpeg')
     except Exception as e:
         print(f"Error processing frame: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'status': 'error', 'message': str(e)}), 400
 
 def generate_frames():
