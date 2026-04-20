@@ -337,15 +337,7 @@
                     </div>
                 </div>
 
-                <!-- Caméra locale (hidden by default) -->
-                <div class="section" id="camera-section">
-                    <div class="section-title">Caméra</div>
-                    <div class="section-content">
-                        <select id="camera-select" onchange="changeCamera()">
-                            <option value="">Chargement...</option>
-                        </select>
-                    </div>
-                </div>
+<!-- Caméra locale section removed -->
 
 
                 <!-- Visages sauvegardés -->
@@ -381,7 +373,6 @@
         function changeSourceType() {
             const sourceType = document.getElementById('source-type-select').value;
 
-            document.getElementById('camera-section').style.display = sourceType === 'local' ? 'block' : 'none';
             document.getElementById('rtsp-section').style.display = sourceType === 'rtsp' ? 'block' : 'none';
 
             if (sourceType === 'local') {
