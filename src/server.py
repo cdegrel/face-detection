@@ -12,7 +12,7 @@ from src.core.recognition import load_references, save_references, get_face_enco
 
 app = Flask(__name__, template_folder='../templates')
 
-camera = cv2.VideoCapture(0)
+camera = None
 lock = threading.Lock()
 current_camera_index = 0
 last_detected_count = 0
@@ -20,10 +20,17 @@ last_face_encoding = None
 rtsp_url = None
 rtsp_camera = None
 
+def get_camera():
+    global camera
+    if camera is None:
+        camera = cv2.VideoCapture(0)
+    return camera
+
 def switch_camera(camera_index):
     global camera, current_camera_index
     with lock:
-        camera.release()
+        if camera is not None:
+            camera.release()
         current_camera_index = camera_index
         camera = cv2.VideoCapture(camera_index)
         if not camera.isOpened():
@@ -102,9 +109,18 @@ def process_frame():
         frame_data = data.get('frame')
 
         if not frame_data:
+            print("No frame data received")
             return jsonify({'status': 'error', 'message': 'No frame data'}), 400
 
-        img_data = base64.b64decode(frame_data.split(',')[1] if ',' in frame_data else frame_data)
+        if ',' in frame_data:
+            frame_data = frame_data.split(',')[1]
+
+        try:
+            img_data = base64.b64decode(frame_data)
+        except Exception as e:
+            print(f"Base64 decode error: {e}")
+            return jsonify({'status': 'error', 'message': f'Invalid base64: {e}'}), 400
+
         img = Image.open(BytesIO(img_data))
         frame = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
 
@@ -127,7 +143,8 @@ def generate_frames():
             if rtsp_camera is not None:
                 ret, frame = rtsp_camera.read()
             else:
-                ret, frame = camera.read()
+                cam = get_camera()
+                ret, frame = cam.read()
 
         if not ret:
             break

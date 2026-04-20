@@ -425,12 +425,16 @@
             const canvas = document.getElementById('canvas');
             const ctx = canvas.getContext('2d');
 
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-
             function processFrame() {
                 if (currentSource !== 'local' || !videoStream) return;
 
+                if (video.videoWidth === 0 || video.videoHeight === 0) {
+                    setTimeout(processFrame, 100);
+                    return;
+                }
+
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
                 ctx.drawImage(video, 0, 0);
                 const frameData = canvas.toDataURL('image/jpeg', 0.8);
 
