@@ -49,6 +49,12 @@ def set_rtsp_source(url):
             rtsp_camera = None
             rtsp_url = None
             return False
+        ret, frame = rtsp_camera.read()
+        if not ret:
+            rtsp_camera.release()
+            rtsp_camera = None
+            rtsp_url = None
+            return False
         rtsp_url = url
     return True
 
