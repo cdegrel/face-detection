@@ -9,4 +9,8 @@ services:
       - ./face_references.pkl:/app/face_references.pkl # Persistance des données
     environment:
       - FLASK_ENV=development
+    deploy:
+      resources:
+        limits:
+          memory: 2G
     restart: unless-stopped
