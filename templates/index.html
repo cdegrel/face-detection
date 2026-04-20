@@ -321,6 +321,7 @@
                     <div class="section-title">Source vidéo</div>
                     <div class="section-content">
                         <select id="source-type-select" onchange="changeSourceType()">
+                            <option value="">Sélectionner une source</option>
                             <option value="local">Caméra locale</option>
                             <option value="rtsp">Flux RTSP</option>
                         </select>
@@ -387,9 +388,15 @@
                 currentSource = 'local';
                 stopLocalCamera();
                 setTimeout(initializeLocalCamera, 100);
+            } else if (sourceType === 'rtsp') {
+                stopLocalCamera();
+                currentSource = 'rtsp';
             } else {
                 stopLocalCamera();
-                currentSource = sourceType;
+                currentSource = null;
+                document.getElementById('video').style.display = 'none';
+                document.getElementById('video-stream').style.display = 'none';
+                document.getElementById('canvas').style.display = 'none';
             }
         }
 
