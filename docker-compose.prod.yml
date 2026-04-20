@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  face-detection:
+    image: ghcr.io/cdegrel/face-detection:latest
+    ports:
+      - "5005:5005"
+    volumes:
+      - ./face_references.pkl:/app/face_references.pkl
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+    restart: unless-stopped
