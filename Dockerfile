@@ -16,6 +16,4 @@ USER appuser
 
 EXPOSE 5005
 
-ENV PYTHONUNBUFFERED=1
-
-CMD ["python3", "src/__main__.py"]
+CMD ["python3", "-m", "src"]
