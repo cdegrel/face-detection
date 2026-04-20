@@ -4,20 +4,10 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
-    inputs:
-      runner:
-        description: 'Runner to use'
-        required: true
-        default: 'ubuntu-latest'
-        type: choice
-        options:
-          - ubuntu-latest
-          - self-hosted
 
 jobs:
   build:
-    runs-on: ${{ inputs.runner || 'ubuntu-latest' }}
+    runs-on: ${{ vars.RUNNER || 'ubuntu-latest' }}
     permissions:
       contents: read
       packages: write
