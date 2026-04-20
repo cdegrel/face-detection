@@ -379,15 +379,17 @@
 
         function changeSourceType() {
             const sourceType = document.getElementById('source-type-select').value;
-            currentSource = sourceType;
 
             document.getElementById('camera-section').style.display = sourceType === 'local' ? 'block' : 'none';
             document.getElementById('rtsp-section').style.display = sourceType === 'rtsp' ? 'block' : 'none';
 
             if (sourceType === 'local') {
-                initializeLocalCamera();
+                currentSource = 'local';
+                stopLocalCamera();
+                setTimeout(initializeLocalCamera, 100);
             } else {
                 stopLocalCamera();
+                currentSource = sourceType;
             }
         }
 
@@ -609,7 +611,6 @@
 
         loadCameras();
         loadReferences();
-        initializeLocalCamera();
     </script>
 </body>
 </html>
