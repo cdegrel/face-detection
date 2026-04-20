@@ -324,6 +324,7 @@
                             <option value="">Sélectionner une source</option>
                             <option value="local">Caméra locale</option>
                             <option value="rtsp">Flux RTSP</option>
+                            <option value="tcp">TCP/P2P</option>
                         </select>
                     </div>
                 </div>
@@ -334,6 +335,15 @@
                     <div class="section-content">
                         <input type="text" id="rtsp-url" placeholder="rtsp://192.168.1.100:554/stream" style="padding: 10px 12px; background: #333; border: 1px solid #444; border-radius: 6px; color: #fff; font-size: 14px;">
                         <button class="btn-add" onclick="connectRTSP()" style="margin-top: 8px;">Connecter</button>
+                    </div>
+                </div>
+
+                <!-- TCP/P2P URL (hidden by default) -->
+                <div class="section" id="tcp-section" style="display: none;">
+                    <div class="section-title">Adresse TCP</div>
+                    <div class="section-content">
+                        <input type="text" id="tcp-url" placeholder="tcp://127.0.0.1:65535" style="padding: 10px 12px; background: #333; border: 1px solid #444; border-radius: 6px; color: #fff; font-size: 14px;">
+                        <button class="btn-add" onclick="connectTCP()" style="margin-top: 8px;">Connecter</button>
                     </div>
                 </div>
 
@@ -374,6 +384,7 @@
             const sourceType = document.getElementById('source-type-select').value;
 
             document.getElementById('rtsp-section').style.display = sourceType === 'rtsp' ? 'block' : 'none';
+            document.getElementById('tcp-section').style.display = sourceType === 'tcp' ? 'block' : 'none';
 
             if (sourceType === 'local') {
                 currentSource = 'local';
@@ -382,6 +393,9 @@
             } else if (sourceType === 'rtsp') {
                 stopLocalCamera();
                 currentSource = 'rtsp';
+            } else if (sourceType === 'tcp') {
+                stopLocalCamera();
+                currentSource = 'tcp';
             } else {
                 stopLocalCamera();
                 currentSource = null;
@@ -479,6 +493,30 @@
                     document.getElementById('video-stream').src = '{{ url_for("rtsp_feed") }}?' + new Date().getTime();
                 } else {
                     alert('Erreur RTSP: ' + data.message);
+                }
+            });
+        }
+
+        function connectTCP() {
+            const url = document.getElementById('tcp-url').value.trim();
+            if (!url) {
+                alert('Entrez une adresse TCP');
+                return;
+            }
+
+            fetch('/set_tcp_source', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('video-stream').style.display = 'block';
+                    document.getElementById('video').style.display = 'none';
+                    document.getElementById('video-stream').src = '{{ url_for("tcp_feed") }}?' + new Date().getTime();
+                } else {
+                    alert('Erreur TCP: ' + data.message);
                 }
             });
         }

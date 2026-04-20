@@ -19,6 +19,8 @@ last_detected_count = 0
 last_face_encoding = None
 rtsp_url = None
 rtsp_camera = None
+tcp_url = None
+tcp_camera = None
 
 def get_camera():
     global camera
@@ -40,8 +42,9 @@ def switch_camera(camera_index):
     return True
 
 def set_rtsp_source(url):
-    global rtsp_camera, rtsp_url
+    global rtsp_camera, rtsp_url, tcp_camera
     with lock:
+        tcp_camera = None
         if rtsp_camera is not None:
             rtsp_camera.release()
         rtsp_camera = cv2.VideoCapture(url)
@@ -56,6 +59,26 @@ def set_rtsp_source(url):
             rtsp_url = None
             return False
         rtsp_url = url
+    return True
+
+def set_tcp_source(url):
+    global tcp_camera, tcp_url, rtsp_camera
+    with lock:
+        rtsp_camera = None
+        if tcp_camera is not None:
+            tcp_camera.release()
+        tcp_camera = cv2.VideoCapture(url)
+        if not tcp_camera.isOpened():
+            tcp_camera = None
+            tcp_url = None
+            return False
+        ret, frame = tcp_camera.read()
+        if not ret:
+            tcp_camera.release()
+            tcp_camera = None
+            tcp_url = None
+            return False
+        tcp_url = url
     return True
 
 def draw_detections(frame, results):
@@ -148,6 +171,8 @@ def generate_frames():
         with lock:
             if rtsp_camera is not None:
                 ret, frame = rtsp_camera.read()
+            elif tcp_camera is not None:
+                ret, frame = tcp_camera.read()
             else:
                 cam = get_camera()
                 ret, frame = cam.read()
@@ -179,6 +204,11 @@ def rtsp_feed():
     return Response(generate_frames(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
+@app.route('/tcp_feed')
+def tcp_feed():
+    return Response(generate_frames(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
 @app.route('/get_cameras')
 def get_cameras():
     available = get_available_cameras()
@@ -200,6 +230,14 @@ def set_rtsp_source_endpoint():
     if url and set_rtsp_source(url):
         return jsonify({'status': 'success', 'url': url})
     return jsonify({'status': 'error', 'message': 'Failed to connect to RTSP source'})
+
+@app.route('/set_tcp_source', methods=['POST'])
+def set_tcp_source_endpoint():
+    data = request.json
+    url = data.get('url')
+    if url and set_tcp_source(url):
+        return jsonify({'status': 'success', 'url': url})
+    return jsonify({'status': 'error', 'message': 'Failed to connect to TCP source'})
 
 @app.route('/get_references')
 def get_references():
